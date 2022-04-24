@@ -1,0 +1,9 @@
+certifi==2020.12.5
+chardet==4.0.0
+idna==2.10
+Pillow==9.1.0
+psycopg2==2.9.3
+reach-rpc-client==0.1.2.202107081228
+requests==2.25.1
+urllib3==1.26.2
+reach==0.1.9
