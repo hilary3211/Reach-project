@@ -84,9 +84,9 @@ A link will be provided below, the link contains proper documentation on how to 
 
 ## 🎈 Usage <a name="usage"></a>
 - Have a working internet connection 
-- Download the Application folder from the repo 
-- Open the dist folder which is located in the Application folder 
-- Click on the rps_game1 exe file to start game and enjoy
+- Download the Executable desktop application from release section of the repo
+- Download the images folder from the repository
+- When done downloading this files put the exe file into the image folder, run the application and enjoy
 - After each user is done inputing their data click on the 'Enter data' to send your input data to the database which is passed to the rpc-client server to execute the program
 - Wait for atleast 10 - 20 seconds, if users want to play again click the 'play again button' else click the exit button
 
