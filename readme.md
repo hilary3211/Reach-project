@@ -11,7 +11,7 @@
 
 ---
 
-<p align="center"> This Project is a battleship implementation on the blockchain
+<p align="center"> This Project is a loopale rock, paper, scissors implementation on the blockchain
     <br> 
 </p>
 
