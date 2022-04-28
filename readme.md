@@ -88,7 +88,7 @@ A link will be provided below, the link contains proper documentation on how to 
 - Download the images folder from the repository
 - When done downloading this files put the exe file into the image folder, run the application and enjoy
 - After each user is done inputing their data click on the 'Enter data' to send your input data to the database which is passed to the rpc-client server to execute the program
-- Wait for atleast 10 - 20 seconds, if users want to play again click the 'play again button' else click the exit button
+- If users want to play again, Wait for atleast 60 seconds, then click the 'play again button', else if users want to quit the game, click the exit button
 
 
 
