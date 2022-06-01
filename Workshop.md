@@ -55,54 +55,52 @@ You should look back at your problem analysis to do this step. Whenever a partic
 
 It is very advisable to write the answers you get after you problem analysis in your index.rsh file using comments.
 
-```
-'reach 0.1';
-const [isHand, ROCK, PAPER, SCISSORS] = makeEnum(3)
-
-const [isOutcome, B_WINS, DRAW, A_WINS] = makeEnum(3) 
-
-const winner = (handA, handB) => ((handA + (4 - handB)) % 3)
-
-
-assert(winner(ROCK, PAPER) == B_WINS)
-assert(winner(PAPER, ROCK) == A_WINS)
-assert(winner(ROCK, ROCK) == DRAW)
-
-forall(UInt, handA =>
-    forall(UInt, handB =>
-        assert(isOutcome(winner(handA, handB)))))
-
-forall(UInt, (hand) =>
-    assert(winner(hand, hand) == DRAW))
+```js
+1 'reach 0.1';
+2 const [isHand, ROCK, PAPER, SCISSORS] = makeEnum(3)
+3
+4 const [isOutcome, B_WINS, DRAW, A_WINS] = makeEnum(3) 
+5
+6 const winner = (handA, handB) => ((handA + (4 - handB)) % 3)
+7 
+8
+9 assert(winner(ROCK, PAPER) == B_WINS)
+10 assert(winner(PAPER, ROCK) == A_WINS)
+11 assert(winner(ROCK, ROCK) == DRAW)
+12
+13 forall(UInt, handA =>
+14    forall(UInt, handB =>
+15       assert(isOutcome(winner(handA, handB)))))
+16
+17 forall(UInt, (hand) =>
+18    assert(winner(hand, hand) == DRAW))
 ```
 This is the start of the reach program, we indicate this by using the 'reach 0.1'. The rest of the code contains variables and functions used to in the program, it also has certain computations that ensure our function works 
 
-```
-const Player = { 
-    ...hasRandom,
-    getHand: Fun([], UInt), 
-    getHand1: Fun([], UInt), 
-    getHand2: Fun([], UInt),
-    seeOutcome: Fun([UInt], Null),
-    informTimeout: Fun([], Null)
-};
+```js
+20 const Player = { 
+21    ...hasRandom,
+22    getHand: Fun([], UInt), 
+23    getHand1: Fun([], UInt), 
+24    getHand2: Fun([], UInt),
+25    seeOutcome: Fun([UInt], Null),
+26    informTimeout: Fun([], Null)
+27 };
 ```
 Then we'll define each individual participant's unique function, but also pass the generic ones to both.
-```
-export const main = Reach.App(() => {
-    const Alice = Participant('Alice', {
-        ...Player,
-        wager: UInt,
-        deadline: UInt
-    });
-    const Bob = Participant('Bob', {
-        ...Player,
-        acceptWager: Fun([UInt], Null),
-    });
-
-    init();
-
-
+```js
+ export const main = Reach.App(() => {
+30    const Alice = Participant('Alice', {
+31        ...Player,
+32        wager: UInt,
+33        deadline: UInt
+34    });
+35    const Bob = Participant('Bob', {
+36        ...Player,
+37        acceptWager: Fun([UInt], Null),
+38    });
+39
+40    init();
 ```
 We go through through the functions and what they do.
 
@@ -132,108 +130,109 @@ Here's what we wrote
 
 # Here is the implemetation of what we wrote down
 
-```
-Alice.only(() => {
-        const wager = declassify(interact.wager) 
-    })
-
-    Alice.publish(wager)
-        .pay(wager)
-    commit()
-
-
-    Bob.only(() => {
-        interact.acceptWager(wager)
-    })
-    Bob.pay(wager)
-    commit()
-    Alice.only(() => {
-        const _handAlice = interact.getHand()
-        const [_commitAlice, _saltAlice] = makeCommitment(interact, _handAlice)
-        const commitAlice = declassify(_commitAlice)
-    })
-    Alice.publish(commitAlice)
-    commit()
-
-    unknowable(Bob, Alice(_handAlice, _saltAlice))
-
-    Bob.only(() => {
-        const handBob = declassify(interact.getHand())
-    })
-    Bob.publish(handBob)
-    commit()
-
-    Alice.only(() => {
-        const saltAlice = declassify(_saltAlice)
-        const handAlice = declassify(_handAlice)
-    })
-
-    Alice.publish(saltAlice, handAlice)
-    checkCommitment(commitAlice, saltAlice, handAlice)
-    const outcome = winner(handAlice, handBob)
-
-    each([Alice, Bob], () => {
-        interact.seeOutcome(outcome)
-    })
-    commit()
-    Alice.only(() => {
-        const _handAlice2 = interact.getHand1()
-        const [_commitAlice2, _saltAlice2] = makeCommitment(interact, _handAlice2)
-        const commitAlice2 = declassify(_commitAlice2)
-    })
-    Alice.publish(commitAlice2)
-    commit()
-
-
-    unknowable(Bob, Alice(_handAlice2, _saltAlice2))
-    Bob.only(() => {
-        const handBob2 = declassify(interact.getHand1())
-    })
-    Bob.publish(handBob2)
-    commit()
-
-
-    Alice.only(() => {
-        const saltAlice2 = declassify(_saltAlice2)
-        const handAlice2 = declassify(_handAlice2)
-    })
-
-    Alice.publish(saltAlice2, handAlice2)
-    checkCommitment(commitAlice2, saltAlice2, handAlice2)
-
-
-    const outcome2 = winner(handAlice2, handBob2) 
-    each([Alice, Bob], () => {
-        interact.seeOutcome(outcome2)
-    })
-    commit()
-
-    Alice.only(() => {
-        const _handAlice3 = interact.getHand2()
-        const [_commitAlice3, _saltAlice3] = makeCommitment(interact, _handAlice3)
-        const commitAlice3 = declassify(_commitAlice3)
-    })
-    Alice.publish(commitAlice3)
-    commit()
-
-
-    unknowable(Bob, Alice(_handAlice3, _saltAlice3))
-    Bob.only(() => {
-        const handBob3 = declassify(interact.getHand2())
-    })
-    Bob.publish(handBob3) 
-    commit()
-
-
-    Alice.only(() => {
-        const saltAlice3 = declassify(_saltAlice3)
-        const handAlice3 = declassify(_handAlice3)
-    })
-
-    Alice.publish(saltAlice3, handAlice3)
-
-    checkCommitment(commitAlice3, saltAlice3, handAlice3)
-    const outcome3 = winner(handAlice3, handBob3)
+```js
+42    Alice.only(() => {
+43        const wager = declassify(interact.wager)
+44    })
+45
+46    Alice.publish(wager)
+47        .pay(wager)
+48    commit()
+49
+50
+60    Bob.only(() => {
+61        interact.acceptWager(wager)
+62    })
+63    Bob.pay(wager)
+64    commit()
+65    Alice.only(() => {
+66        const _handAlice = interact.getHand()
+67        const [_commitAlice, _saltAlice] = makeCommitment(interact, _handAlice)
+68        const commitAlice = declassify(_commitAlice)
+69    })
+70    Alice.publish(commitAlice)
+71    commit()
+72
+73    unknowable(Bob, Alice(_handAlice, _saltAlice))
+74
+75    Bob.only(() => {
+76        const handBob = declassify(interact.getHand())
+77    })
+78    Bob.publish(handBob)
+79    commit()
+80
+81    Alice.only(() => {
+82        const saltAlice = declassify(_saltAlice)
+83        const handAlice = declassify(_handAlice)
+84    })
+85
+86    Alice.publish(saltAlice, handAlice)
+87
+88    checkCommitment(commitAlice, saltAlice, handAlice)
+89    const outcome = winner(handAlice, handBob)
+90    each([Alice, Bob], () => {
+91        interact.seeOutcome(outcome)
+92    })
+93    commit()
+94
+95 Alice.only(() => {
+96        const _handAlice2 = interact.getHand1()
+97        const [_commitAlice2, _saltAlice2] = makeCommitment(interact,
+_handAlice2)
+98        const commitAlice2 = declassify(_commitAlice2)
+99    })
+100    Alice.publish(commitAlice2)
+101    commit()
+102
+103
+104    unknowable(Bob, Alice(_handAlice2, _saltAlice2))
+106    Bob.only(() => {
+107        const handBob2 = declassify(interact.getHand1())
+108    })
+109    Bob.publish(handBob2)
+110    commit()
+111
+112    Alice.only(() => {
+113        const saltAlice2 = declassify(_saltAlice2)
+114        const handAlice2 = declassify(_handAlice2)
+115    })
+116
+117    Alice.publish(saltAlice2, handAlice2)
+118    checkCommitment(commitAlice2, saltAlice2, handAlice2)
+119
+120
+121    const outcome2 = winner(handAlice2, handBob2)
+122    each([Alice, Bob], () => {
+123        interact.seeOutcome(outcome2) 
+124    })
+125    commit()
+126
+127     Alice.only(() => {
+128        const _handAlice3 = interact.getHand2()
+129        const [_commitAlice3, _saltAlice3] = makeCommitment(interact, _handAlice3)
+130        const commitAlice3 = declassify(_commitAlice3)
+131    })
+132    Alice.publish(commitAlice3)
+133    commit()
+134
+135
+136    unknowable(Bob, Alice(_handAlice3, _saltAlice3))
+137    Bob.only(() => {
+138        const handBob3 = declassify(interact.getHand2())
+139    })
+140    Bob.publish(handBob3)//publishing the hand 
+141    commit()
+142
+143    Alice.only(() => {
+144        const saltAlice3 = declassify(_saltAlice3)
+145        const handAlice3 = declassify(_handAlice3)
+146    })
+147
+148    Alice.publish(saltAlice3, handAlice3)
+149    checkCommitment(commitAlice3, saltAlice3, handAlice3)
+150
+151
+152    const outcome3 = winner(handAlice3, handBob3)
 ```
 
 So the code above contains the implemetation the comments 1 to 4 we wrote down.
@@ -242,192 +241,187 @@ We used certain functions inbuilt functions to complete most of the task such as
 
 * `makeCommitment()` this is used to make a commitment that the first participant will publish their hands without changing it after the second participant publishes their hand. This was used for each round.
 
-* `unknowable()` this ennsures that the second participant doesn't know the first participant's hand till they publish their's. it is also used in each round.
+* [`unknowable()`](https://docs.reach.sh/rsh/step/#unknowable) this ennsures that the second participant doesn't know the first participant's hand till they publish their's. it is also used in each round.
 
-```
- const [forAlice, forBob] =
-        outcome2 == A_WINS && outcome == A_WINS || outcome == A_WINS && outcome3 == A_WINS || outcome2 == A_WINS && outcome3 == A_WINS ? [2, 0] :
-            outcome2 == B_WINS && outcome == B_WINS || outcome == B_WINS && outcome3 == B_WINS || outcome2 == B_WINS && outcome3 == B_WINS ? [0, 2] :
-                [1, 1] /* tie */
-
-    transfer(forAlice * wager).to(Alice)
-    transfer(forBob * wager).to(Bob)
-    commit();
-
-
-    each([Alice, Bob], () => {
-        interact.seeOutcome(outcome3)
-    })
-})
+```js
+153
+154    const [forAlice, forBob] =
+155        outcome2 == A_WINS && outcome == A_WINS || outcome == A_WINS && outcome3 == A_WINS || outcome2 == A_WINS && outcome3 == A_WINS ? [2, 0] :
+156            outcome2 == B_WINS && outcome == B_WINS || outcome == B_WINS && outcome3 == B_WINS || outcome2 == B_WINS && outcome3 == B_WINS ? [0, 2] :
+157                [1, 1] /* tie */
+158
+159    transfer(forAlice * wager).to(Alice)
+160    transfer(forBob * wager).to(Bob)
+161    commit();
+162
+163
+164    each([Alice, Bob], () => {
+165        interact.seeOutcome(outcome3)
+166    })
+167 })
 ```
 The code above checkes the winner of the game and sends the wagers in the contract to the winner, but in the possibility of a draw it sends back the wagers to the two the participants.
 
 Now we are done writing the reach backend code lets have a look at the full code 
 
-```
-'reach 0.1';
-const [isHand, ROCK, PAPER, SCISSORS] = makeEnum(3)
+```js
+1 'reach 0.1';
+2 const [isHand, ROCK, PAPER, SCISSORS] = makeEnum(3)
+3
+4 const [isOutcome, B_WINS, DRAW, A_WINS] = makeEnum(3) 
+5
+6 const winner = (handA, handB) => ((handA + (4 - handB)) % 3)
+7 
+8
+9 assert(winner(ROCK, PAPER) == B_WINS)
+10 assert(winner(PAPER, ROCK) == A_WINS)
+11 assert(winner(ROCK, ROCK) == DRAW)
+12
+13 forall(UInt, handA =>
+14    forall(UInt, handB =>
+15       assert(isOutcome(winner(handA, handB)))))
+16
+17 forall(UInt, (hand) =>
+18    assert(winner(hand, hand) == DRAW))
+20 const Player = { 
+21    ...hasRandom,
+22    getHand: Fun([], UInt), 
+23    getHand1: Fun([], UInt), 
+24    getHand2: Fun([], UInt),
+25    seeOutcome: Fun([UInt], Null),
+26    informTimeout: Fun([], Null)
+27 };
+28
+29 export const main = Reach.App(() => {
+30    const Alice = Participant('Alice', {
+31        ...Player,
+32        wager: UInt,
+33        deadline: UInt
+34    });
+35    const Bob = Participant('Bob', {
+36        ...Player,
+37        acceptWager: Fun([UInt], Null),
+38    });
+39
+40    init();
+41
 
-const [isOutcome, B_WINS, DRAW, A_WINS] = makeEnum(3) 
-
-const winner = (handA, handB) => ((handA + (4 - handB)) % 3)
-
-
-assert(winner(ROCK, PAPER) == B_WINS)
-assert(winner(PAPER, ROCK) == A_WINS)
-assert(winner(ROCK, ROCK) == DRAW)
-
-forall(UInt, handA =>
-    forall(UInt, handB =>
-        assert(isOutcome(winner(handA, handB)))))
-
-forall(UInt, (hand) =>
-    assert(winner(hand, hand) == DRAW))
-
-
-const Player = { 
-    ...hasRandom,
-    getHand: Fun([], UInt), 
-    getHand1: Fun([], UInt), 
-    getHand2: Fun([], UInt),
-    seeOutcome: Fun([UInt], Null),
-    informTimeout: Fun([], Null)
-};
-
-export const main = Reach.App(() => {
-    const Alice = Participant('Alice', {
-        ...Player,
-        wager: UInt,
-        deadline: UInt
-    });
-    const Bob = Participant('Bob', {
-        ...Player,
-        acceptWager: Fun([UInt], Null),
-    });
-
-    init();
-
-
-    Alice.only(() => {
-        const wager = declassify(interact.wager)
-    })
-
-    Alice.publish(wager)
-        .pay(wager)
-    commit()
-
-
-    Bob.only(() => {
-        interact.acceptWager(wager)
-    })
-    Bob.pay(wager)
-    commit()
-    Alice.only(() => {
-        const _handAlice = interact.getHand()
-        const [_commitAlice, _saltAlice] = makeCommitment(interact, _handAlice)
-        const commitAlice = declassify(_commitAlice)
-    })
-    Alice.publish(commitAlice)
-    commit()
-
-    unknowable(Bob, Alice(_handAlice, _saltAlice))
-
-    Bob.only(() => {
-        const handBob = declassify(interact.getHand())
-    })
-    Bob.publish(handBob)
-    commit()
-
-    Alice.only(() => {
-        const saltAlice = declassify(_saltAlice)
-        const handAlice = declassify(_handAlice)
-    })
-
-    Alice.publish(saltAlice, handAlice)
-
-    checkCommitment(commitAlice, saltAlice, handAlice)
-    const outcome = winner(handAlice, handBob)
-    each([Alice, Bob], () => {
-        interact.seeOutcome(outcome)
-    })
-    commit()
-    Alice.only(() => {
-        const _handAlice2 = interact.getHand1()
-        const [_commitAlice2, _saltAlice2] = makeCommitment(interact, _handAlice2)
-        const commitAlice2 = declassify(_commitAlice2)
-    })
-    Alice.publish(commitAlice2)
-    commit()
-
-
-    unknowable(Bob, Alice(_handAlice2, _saltAlice2))
-    Bob.only(() => {
-        const handBob2 = declassify(interact.getHand1())
-    })
-    Bob.publish(handBob2)
-    commit()
-
-    Alice.only(() => {
-        const saltAlice2 = declassify(_saltAlice2)
-        const handAlice2 = declassify(_handAlice2)
-    })
-
-    Alice.publish(saltAlice2, handAlice2)
-    checkCommitment(commitAlice2, saltAlice2, handAlice2)
-
-
-    const outcome2 = winner(handAlice2, handBob2)
-    each([Alice, Bob], () => {
-        interact.seeOutcome(outcome2) 
-    })
-    commit()
-
-
-
-    Alice.only(() => {
-        const _handAlice3 = interact.getHand2()
-        const [_commitAlice3, _saltAlice3] = makeCommitment(interact, _handAlice3)
-        const commitAlice3 = declassify(_commitAlice3)
-    })
-    Alice.publish(commitAlice3)
-    commit()
-
-
-    unknowable(Bob, Alice(_handAlice3, _saltAlice3))
-    Bob.only(() => {
-        const handBob3 = declassify(interact.getHand2())
-    })
-    Bob.publish(handBob3)//publishing the hand 
-    commit()
-
-    Alice.only(() => {
-        const saltAlice3 = declassify(_saltAlice3)
-        const handAlice3 = declassify(_handAlice3)
-    })
-
-    Alice.publish(saltAlice3, handAlice3)
-    checkCommitment(commitAlice3, saltAlice3, handAlice3)
-
-
-    const outcome3 = winner(handAlice3, handBob3)
-
-
-
-
-    const [forAlice, forBob] =
-        outcome2 == A_WINS && outcome == A_WINS || outcome == A_WINS && outcome3 == A_WINS || outcome2 == A_WINS && outcome3 == A_WINS ? [2, 0] :
-            outcome2 == B_WINS && outcome == B_WINS || outcome == B_WINS && outcome3 == B_WINS || outcome2 == B_WINS && outcome3 == B_WINS ? [0, 2] :
-                [1, 1] /* tie */
-
-    transfer(forAlice * wager).to(Alice)
-    transfer(forBob * wager).to(Bob)
-    commit();
-
-
-    each([Alice, Bob], () => {
-        interact.seeOutcome(outcome3)
-    })
-})
+42    Alice.only(() => {
+43        const wager = declassify(interact.wager)
+44    })
+45
+46    Alice.publish(wager)
+47        .pay(wager)
+48    commit()
+49
+50
+60    Bob.only(() => {
+61        interact.acceptWager(wager)
+62    })
+63    Bob.pay(wager)
+64    commit()
+65    Alice.only(() => {
+66        const _handAlice = interact.getHand()
+67        const [_commitAlice, _saltAlice] = makeCommitment(interact, _handAlice)
+68        const commitAlice = declassify(_commitAlice)
+69    })
+70    Alice.publish(commitAlice)
+71    commit()
+72
+73    unknowable(Bob, Alice(_handAlice, _saltAlice))
+74
+75    Bob.only(() => {
+76        const handBob = declassify(interact.getHand())
+77    })
+78    Bob.publish(handBob)
+79    commit()
+80
+81    Alice.only(() => {
+82        const saltAlice = declassify(_saltAlice)
+83        const handAlice = declassify(_handAlice)
+84    })
+85
+86    Alice.publish(saltAlice, handAlice)
+87
+88    checkCommitment(commitAlice, saltAlice, handAlice)
+89    const outcome = winner(handAlice, handBob)
+90    each([Alice, Bob], () => {
+91        interact.seeOutcome(outcome)
+92    })
+93    commit()
+94
+95 Alice.only(() => {
+96        const _handAlice2 = interact.getHand1()
+97        const [_commitAlice2, _saltAlice2] = makeCommitment(interact, _handAlice2)
+98        const commitAlice2 = declassify(_commitAlice2)
+99    })
+100    Alice.publish(commitAlice2)
+101    commit()
+102
+103
+104    unknowable(Bob, Alice(_handAlice2, _saltAlice2))
+106    Bob.only(() => {
+107        const handBob2 = declassify(interact.getHand1())
+108    })
+109    Bob.publish(handBob2)
+110    commit()
+111
+112    Alice.only(() => {
+113        const saltAlice2 = declassify(_saltAlice2)
+114        const handAlice2 = declassify(_handAlice2)
+115    })
+116
+117    Alice.publish(saltAlice2, handAlice2)
+118    checkCommitment(commitAlice2, saltAlice2, handAlice2)
+119
+120
+121    const outcome2 = winner(handAlice2, handBob2)
+122    each([Alice, Bob], () => {
+123        interact.seeOutcome(outcome2) 
+124    })
+125    commit()
+126
+127     Alice.only(() => {
+128        const _handAlice3 = interact.getHand2()
+129        const [_commitAlice3, _saltAlice3] = makeCommitment(interact, _handAlice3)
+130        const commitAlice3 = declassify(_commitAlice3)
+131    })
+132    Alice.publish(commitAlice3)
+133    commit()
+134
+135
+136    unknowable(Bob, Alice(_handAlice3, _saltAlice3))
+137    Bob.only(() => {
+138        const handBob3 = declassify(interact.getHand2())
+139    })
+140    Bob.publish(handBob3)//publishing the hand 
+141    commit()
+142
+143    Alice.only(() => {
+144        const saltAlice3 = declassify(_saltAlice3)
+145        const handAlice3 = declassify(_handAlice3)
+146    })
+147
+148    Alice.publish(saltAlice3, handAlice3)
+149    checkCommitment(commitAlice3, saltAlice3, handAlice3)
+150
+151
+152    const outcome3 = winner(handAlice3, handBob3)
+153
+154    const [forAlice, forBob] =
+155        outcome2 == A_WINS && outcome == A_WINS || outcome == A_WINS && outcome3 == A_WINS || outcome2 == A_WINS && outcome3 == A_WINS ? [2, 0] :
+156            outcome2 == B_WINS && outcome == B_WINS || outcome == B_WINS && outcome3 == B_WINS || outcome2 == B_WINS && outcome3 == B_WINS ? [0, 2] :
+157                [1, 1] /* tie */
+158
+159    transfer(forAlice * wager).to(Alice)
+160    transfer(forBob * wager).to(Bob)
+161    commit();
+162
+163
+164    each([Alice, Bob], () => {
+165        interact.seeOutcome(outcome3)
+166    })
+167 })
 ```
 
 ## Interaction Introduction
@@ -438,7 +432,7 @@ Just incase you decide to use python and tkinter the code will be provided below
 
 # index.py 
 
-```
+```py
 # flake8: noqa
 import random
 from threading import Thread 
@@ -657,7 +651,7 @@ if __name__ == "__main__":
     main()
 ```
 
-```
+```py
 # rps_game.py
 import threading
 from tkinter import *
