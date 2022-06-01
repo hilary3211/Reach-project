@@ -20,8 +20,8 @@ This tutorial assumes you have completed the Rock,Paper,Scissor tutorial on the 
 This tutorial explains step by step how the loopable rock, paper, scissors works from ground up, so get ready!!!
 
 ```js
-1. 'reach 0.1';
-2. const [isHand, ROCK, PAPER, SCISSORS] = makeEnum(3)
+- 'reach 0.1';
+- const [isHand, ROCK, PAPER, SCISSORS] = makeEnum(3)
 3.
 4. const [isOutcome, B_WINS, DRAW, A_WINS] = makeEnum(3) 
 5
