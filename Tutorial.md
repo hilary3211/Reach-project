@@ -135,7 +135,7 @@ Now create a new file and name it index.py, this file will contain the frontend 
 
 So now we are going to create the functions, using the the same function names we used in the reach backend code above 
 
-```
+```py
 48 def player(who):
 49        def getHand():
 50            time.sleep(5)
