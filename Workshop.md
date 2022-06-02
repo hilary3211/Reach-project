@@ -15,9 +15,9 @@
     <br> 
 </p>
 
-This workshop will go through the my Reach decentralized umoja hackathon project the loopable rock, paper, scissors. We are go through and explain the reach program from start to finish.
+This workshop will go through my Reach decentralized umoja hackathon project, the loopable rock, paper, scissors. We are going through and explaining the reach program from start to finish.
 
-This worshop assumes that you have gone through the Rock,paper,scissors tutorial which also ensures that you have reach properly installed on your system.
+This workshop assumes that you have gone through the Rock,paper,scissors tutorial which also ensures that you have reach properly installed on your system.
 
 ## Problem analysis 
 Before writing a program you have understand the problem you trying to solve or the application you are trying to build or the logic you are trying to implement. 
@@ -102,9 +102,9 @@ Then we'll define each individual participant's unique function, but also pass t
 39
 40    init();
 ```
-We go through through the functions and what they do.
+We go through the functions and what they do.
 
-Each of the participant have 5 similar functions which is defined in the Player variable and is futher deployed in each of the participants 
+Each of the participant have 5 similar functions which is defined in the Player variable and is further deployed in each of the participants 
 
 * `getHand` This function gets the first user input of the two participants from the frontend. The function doesn't have an argument, but it returns a UInt from the frontend to the backend. This UInt is used to represent the first hand chosen by the two participants.
 
@@ -239,7 +239,7 @@ So the code above contains the implemetation the comments 1 to 4 we wrote down.
 
 We used certain functions inbuilt functions to complete most of the task such as 
 
-* `makeCommitment()` this is used to make a commitment that the first participant will publish their hands without changing it after the second participant publishes their hand. This was used for each round.
+* [`makeCommitment()`](https://docs.reach.sh/rsh/local/#makecommitment) this is used to make a commitment that the first participant will publish their hands without changing it after the second participant publishes their hand. This was used for each round.
 
 * [`unknowable()`](https://docs.reach.sh/rsh/step/#unknowable) this ennsures that the second participant doesn't know the first participant's hand till they publish their's. it is also used in each round.
 
