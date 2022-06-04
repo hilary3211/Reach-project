@@ -44,7 +44,7 @@ This tutorial explains step by step how the loopable rock, paper, scissors works
 * From line 2 to 6 we create functions and variables we use within the program
 * From line 9 to 18 ensures that all the the functions work using the assert function
 
-Now lets dive into creating the participant of the game Alice and Bob.  The first step is to create the functions which will be used by both participant frontend to communicate with the reach backend code. 
+Now let's dive into creating the participant of the game Alice and Bob.  The first step is to create the functions which will be used by both participant frontend to communicate with the reach backend code. 
 
 ```js
 20 const Player = { 
@@ -128,9 +128,9 @@ Now create a new file and name it index.py, this file will contain the frontend 
 
 * On line 6 the Python program binds rpc and rpc_callbacks out of mk_rpc. These two functions are the only tools we will need to communicate with the RPC server.
 * From line 8 to line 12 we are simply creating test account, account names of the players and funding those accounts 
-* From line 16 to line 20 we create two functions, the fmt function is used to format the account balance to 4 decimal places, while the getbalance function is used to the balance of the test accounts used in the game
-* From line 22 to line 26 we are simply trying to get the balance to the account before the game begins and print it out  
-* On Line 28 we are deploying the contract 
+* From line 16 to line 20 we create two functions, the fmt function is used to format the account balance to 4 decimal places, while the getbalance function is used to get the balance of the test accounts used in the game.
+* From line 22 to line 26 we are simply trying to get the balance to the account before the game begins and print it out.  
+* On Line 28 we deploy the contract 
 * From line 30 to line 46 we create a dictionary ad lists used within the program 
 
 So now we are going to create the functions, using the the same function names we used in the reach backend code above 
@@ -182,7 +182,7 @@ So now we are going to create the functions, using the the same function names w
 91            "seeOutcome": seeOutcome,
 92        }
 ```
-* On line 48 we create the general player function with the player name argument. This main player function contains sub functions which has all the functionality the players in the game posses 
+* On line 48 we create the general player function with the player name as an argument of the function. This main player function contains sub functions which has all the functionality the players in the game posses 
 * Line 49 to Line 56 contains the first gethand function which is used to get the hands of the users in the first round of the game.
 * Line 58 to Line 65 contains the second gethand function which is used to get the hands of the two players in the second round of the game.
 * Line 67 to line 74 contains the third gethand function which is used to get the hands of the two players in third round of the game 
@@ -371,7 +371,7 @@ Now lets see how all this is implemented in the frontend code
 * From line 106 to line 122 we also a create a function play_bob(), this is used to execute player2 functionalities in the game. we also use the thread function to execute the function on line 124 and line 125. 
 * On line 127 and 128 we use the .join() to instructs the main thread to wait until both child threads have run to completion, signifying the end of the game.
  
-Towards the ending of the code we just get the balance of the two accounts and print it on the terminal, then we forget the contract just in case the users want to play again.
+Towards the ending of the code we just get the balance of the two accounts and print it out on the terminal, then we forget the contract just in case the users want to play again.
 
 Below is the full game output on the terminal 
 ```
