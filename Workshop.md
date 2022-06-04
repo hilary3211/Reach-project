@@ -22,7 +22,7 @@ This workshop assumes that you have gone through the Rock,paper,scissors tutoria
 ## Problem analysis 
 Before writing a program you have understand the problem you trying to solve or the application you are trying to build or the logic you are trying to implement. 
 The next step of this analysis is to ask and answer certain questions about the project, this will help you understand the project you are trying to build.
-Below are the questions i asked my about this project and thier respective answers.
+Below are the questions i asked myself about this project and thier respective answers.
 
 ``` 
 What is the logic we are trying to implement in the project 
@@ -241,7 +241,7 @@ We used certain functions inbuilt functions to complete most of the task such as
 
 * [`makeCommitment()`](https://docs.reach.sh/rsh/local/#makecommitment) this is used to make a commitment that the first participant will publish their hands without changing it after the second participant publishes their hand. This was used for each round.
 
-* [`unknowable()`](https://docs.reach.sh/rsh/step/#unknowable) this ennsures that the second participant doesn't know the first participant's hand till they publish their's. it is also used in each round.
+* [`unknowable()`](https://docs.reach.sh/rsh/step/#unknowable) this ensures that the second participant doesn't know the first participant's hand.
 
 ```js
 153
@@ -260,7 +260,7 @@ We used certain functions inbuilt functions to complete most of the task such as
 166    })
 167 })
 ```
-The code above checkes the winner of the game and sends the wagers in the contract to the winner, but in the possibility of a draw it sends back the wagers to the two the participants.
+The code above checks the winner of the game and sends the wagers in the contract to the winner, but in the possibility of a draw it sends back the wagers to the two the participants.
 
 Now we are done writing the reach backend code lets have a look at the full code 
 
