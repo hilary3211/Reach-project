@@ -15,64 +15,64 @@
     <br> 
 </p>
 
-This tutorial assumes you have completed the Rock,Paper,Scissor tutorial on the reach docs 
+This tutorial assumes you have completed the Rock,Paper,Scissor tutorial on the reach docs
 
-This tutorial explains step by step how the loopable rock, paper, scissors works from ground up, so get ready!!!
+The logic we are trying to implement is loopable rock,paper,scissors.It is variant of rock, paper, scissors in which moves are submitted in batches (to keep transaction costs low) and the first move alternates between two players.
+So we are going to have two participant an attacher and a deployer or Player1 and Player2.
+The aim of this tutorial explains step by step on how the loopable rock, paper, scissors program works from ground up.
+For this Tutorial we are creating a console application using python, so get readyyy!!!
 
 ```js
-1 'reach 0.1';
+1 'reach 0.1'
 2 const [isHand, ROCK, PAPER, SCISSORS] = makeEnum(3)
-3
-4 const [isOutcome, B_WINS, DRAW, A_WINS] = makeEnum(3) 
+3 const [isOutcome, B_WINS, DRAW, A_WINS] = makeEnum(3) 
+4 const winner = (handA, handB) => ((handA + (4 - handB)) % 3)
 5
-6 const winner = (handA, handB) => ((handA + (4 - handB)) % 3)
-7 
-8
-9 assert(winner(ROCK, PAPER) == B_WINS)
-10 assert(winner(PAPER, ROCK) == A_WINS)
-11 assert(winner(ROCK, ROCK) == DRAW)
-12
-13 forall(UInt, handA =>
-14    forall(UInt, handB =>
-15       assert(isOutcome(winner(handA, handB)))))
-16
-17 forall(UInt, (hand) =>
-18    assert(winner(hand, hand) == DRAW))
+6 assert(winner(ROCK, PAPER) == B_WINS)
+7 assert(winner(PAPER, ROCK) == A_WINS)
+8 assert(winner(ROCK, ROCK) == DRAW)
+9
+10 forall(UInt, handA =>
+11    forall(UInt, handB =>
+12       assert(isOutcome(winner(handA, handB)))))
+13
+14 forall(UInt, (hand) =>
+15    assert(winner(hand, hand) == DRAW))
 ```
 
-* As you know Line 1 is used to specify the version of reach 
-* From line 2 to 6 we create functions and variables we use within the program
-* From line 9 to 18 ensures that all the the functions work using the assert function
+* Line 1 is used to specify the version of [REACH](https://docs.reach.sh/tut/rps/#tut)
+* From line 2 to 4 we create functions and variables we use within the program
+* From line 6 to 15 ensures that all the the functions work using the assert function
 
-Now let's dive into creating the participant of the game Alice and Bob.  The first step is to create the functions which will be used by both participant frontend to communicate with the reach backend code. 
+Now let's dive into creating the participant of the game Alice and Bob.  The first step is to create the functions which will be used by both participant frontend to communicate with the REACH backend code. 
 
 ```js
-20 const Player = { 
-21    ...hasRandom,
-22    getHand: Fun([], UInt), 
-23    getHand1: Fun([], UInt), 
-24    getHand2: Fun([], UInt),
-25    seeOutcome: Fun([UInt], Null),
-26    informTimeout: Fun([], Null)
-27 };
-28
-29 export const main = Reach.App(() => {
-30    const Alice = Participant('Alice', {
-31        ...Player,
-32        wager: UInt,
-33        deadline: UInt
-34    });
-35    const Bob = Participant('Bob', {
-36        ...Player,
-37        acceptWager: Fun([UInt], Null),
-38    });
-39
-40    init();
+16 const Player = { 
+17    ...hasRandom,
+18    getHand: Fun([], UInt), 
+19    getHand1: Fun([], UInt), 
+22    getHand2: Fun([], UInt),
+21    seeOutcome: Fun([UInt], Null),
+22    informTimeout: Fun([], Null)
+23 }
 ```
-* Line 20 to Line 27 defines the functions the two participants have in common. These functions are all stored in a variable name called Player 
-* Line 29 to Line 38 creates the participants of the game and includes their functions
-
-* Line 40 is used to initalize the creation participants
+* Line 16 to Line 23 defines the functions the two participants have in common. These functions are all stored in a variable name called Player
+```js
+24 export const main = Reach.App(() => {
+25    const Alice = Participant('Alice', {
+26        ...Player,
+27        wager: UInt,
+28        deadline: UInt
+29    })
+30    const Bob = Participant('Bob', {
+31        ...Player,
+32        acceptWager: Fun([UInt], Null),
+33    })
+34
+35    init()
+```
+* Line 24 to Line 33 creates the participants of the game and includes their functions
+* Line 35 is used to initalize the REACH application
 
 Now create a new file and name it index.py, this file will contain the frontend code. Let's dive right into it below
 
@@ -89,106 +89,108 @@ Now create a new file and name it index.py, this file will contain the frontend 
 10    player_2 =input("Enter your name player2: ")
 11    acc_alice = rpc("/stdlib/newTestAccount", starting_balance)
 12    acc_bob = rpc("/stdlib/newTestAccount", starting_balance)
-13
-14    
-15
-16    def fmt(x):
-17        return rpc("/stdlib/formatCurrency", x, 4)
-18
-19    def get_balance(w):
-20        return fmt(rpc("/stdlib/balanceOf", w))
-21
-22    before_alice = get_balance(acc_alice)
-23    before_bob = get_balance(acc_bob)
-24
-25    print("%s starting balance is %s algo" %(player_1,before_alice))
-26    print("%s starting balance is %s algo"%(player_2,before_bob))
-27
-28    ctc_alice = rpc("/acc/contract", acc_alice)
-29
-30    OUTCOME = [
-31        "%s wins" %(player_2),
-32        "Draw",
-33        "%s wins"%(player_1),
-34    ]
-35    HAND = ["Rock", "Paper", "Scissors"]
-36    Hands = {
-37        "Rock": 0,
-38        "R": 0,
-39        "r": 0,
-40        "Paper": 1,
-41        "P": 1,
-42        "p": 1,
-43        "Scissors": 2,
-44        "S": 2,
-45        "s": 2,
-46    }
 ```
-* From line 2 to line 4 we are simply importing modules we will use in the frontend code, like the rpc server which will be used to connect our frontend python code to the reach backend code.
-
+* From line 2 to line 4 we are importing modules we will use in the frontend code, like the rpc server which will be used to connect our frontend python code to the REACH backend code.
 * On line 6 the Python program binds rpc and rpc_callbacks out of mk_rpc. These two functions are the only tools we will need to communicate with the RPC server.
-* From line 8 to line 12 we are simply creating test account, account names of the players and funding those accounts 
-* From line 16 to line 20 we create two functions, the fmt function is used to format the account balance to 4 decimal places, while the getbalance function is used to get the balance of the test accounts used in the game.
-* From line 22 to line 26 we are simply trying to get the balance to the account before the game begins and print it out.  
-* On Line 28 we deploy the contract 
-* From line 30 to line 46 we create a dictionary ad lists used within the program 
-
-So now we are going to create the functions, using the the same function names we used in the reach backend code above 
+* From line 8 to line 12 we are creating test account, account names of the players and funding those accounts 
 
 ```py
-48 def player(who):
-49        def getHand():
-50            time.sleep(5)
-51            if who == player_1:
-52                hand = input("Enter your hand player1: ")
-53            elif who == player_2:
-54                hand = input("Enter your hand player2: ")
-55            selected_hand = Hands[hand]
-56            return selected_hand
-57        
-58        def getHand1():
-59            time.sleep(5)
-60            if who == player_1:
-61                hand = input("Enter your hand player1: ")
-62            elif who == player_2:
-63                hand = input("Enter your hand player2: ")
-64            selected_hand = Hands[hand]
-65            return selected_hand
-66
-67        def getHand2():
-68            time.sleep(5)
-69            if who == player_1:
-70                hand = input("Enter your hand player1: ")
-71            elif who == player_2:
-72                hand = input("Enter your hand player2: ")
-73            selected_hand = Hands[hand]
-74            return selected_hand
-75        
-76        def informTimeout():
-77            print("%s observed a timeout" % who)
-78
-79        def seeOutcome(n):
-80            print(
-81                "%s saw outcome %s this round"
-82                % (who, OUTCOME[rpc("/stdlib/bigNumberToNumber", n)])
-83            )
-84
-85        return {
-86            "stdlib.hasRandom": True,
-87            "getHand": getHand,
-88            "getHand1": getHand1,
-89            "getHand2": getHand2,
-90            "informTimeout": informTimeout,
-91            "seeOutcome": seeOutcome,
-92        }
+13    def fmt(x):
+14        return rpc("/stdlib/formatCurrency", x, 4)
+15
+16    def get_balance(w):
+17        return fmt(rpc("/stdlib/balanceOf", w))
+18
+19    before_alice = get_balance(acc_alice)
+20    before_bob = get_balance(acc_bob)
+21
+22    print("%s starting balance is %s algo" %(player_1,before_alice))
+23    print("%s starting balance is %s algo"%(player_2,before_bob))
+24
+25    ctc_alice = rpc("/acc/contract", acc_alice)
+26
+27    OUTCOME = [
+28        "%s wins" %(player_2),
+29        "Draw",
+30        "%s wins"%(player_1),
+31    ]
+32    HAND = ["Rock", "Paper", "Scissors"]
+33    Hands = {
+34        "Rock": 0,
+35        "R": 0,
+36        "r": 0,
+37        "Paper": 1,
+38        "P": 1,
+39        "p": 1,
+40        "Scissors": 2,
+41        "S": 2,
+42        "s": 2,
+43    }
 ```
-* On line 48 we create the general player function with the player name as an argument of the function. This main player function contains sub functions which has all the functionality the players in the game posses 
-* Line 49 to Line 56 contains the first gethand function which is used to get the hands of the users in the first round of the game.
-* Line 58 to Line 65 contains the second gethand function which is used to get the hands of the two players in the second round of the game.
-* Line 67 to line 74 contains the third gethand function which is used to get the hands of the two players in third round of the game 
-* Line 76 to line 77 contains the function built to help inform timeouts in game 
-* Line 78 to line 83 contains a function that is used in the program to see the outcome each round 
-* On line 85 to line 91 we simply return this subfunctions of the main player function.
+
+* From line 13 to line 17 we create two functions, the fmt function is used to format the account balance to 4 decimal places, while the getbalance function is used to get the balance of the test accounts used in the game.
+* From line 19 to line 23 we are trying to get the balance to the account before the game begins and print it out.  
+* On Line 25 we deploy the contract 
+* From line 27 to line 43 we create a dictionary and list to store some information used within the program.
+
+So now we are going to create the functions, using the the same function names we used in the REACH backend code above 
+
+```py
+36 def player(who):
+37        def getHand():
+38            time.sleep(5)
+39            if who == player_1:
+40                hand = input("Enter your hand player1: ")
+41            elif who == player_2:
+42                hand = input("Enter your hand player2: ")
+52            selected_hand = Hands[hand]
+53            return selected_hand
+54        
+55        def getHand1():
+56            time.sleep(5)
+57            if who == player_1:
+58                hand = input("Enter your hand player1: ")
+59            elif who == player_2:
+60                hand = input("Enter your hand player2: ")
+61            selected_hand = Hands[hand]
+62            return selected_hand
+63
+64        def getHand2():
+65            time.sleep(5)
+66            if who == player_1:
+67                hand = input("Enter your hand player1: ")
+68            elif who == player_2:
+69                hand = input("Enter your hand player2: ")
+70            selected_hand = Hands[hand]
+71            return selected_hand
+```
+* On line 45 we create the general player function with the player name as an argument of the function. This main player function contains sub functions which has all the functionality the players in the game posses 
+* Line 46 to Line 53 contains the first gethand function which is used to get the hands of the users in the first round of the game.
+* Line 55 to Line 62 contains the second gethand function which is used to get the hands of the two players in the second round of the game.
+* Line 64 to line 71 contains the third gethand function which is used to get the hands of the two players in third round of the game 
+```py       
+72        def informTimeout():
+73            print("%s observed a timeout" % who)
+74
+75        def seeOutcome(n):
+76            print(
+77                "%s saw outcome %s this round"
+78                % (who, OUTCOME[rpc("/stdlib/bigNumberToNumber", n)])
+79            )
+80
+81        return {
+82            "stdlib.hasRandom": True,
+83            "getHand": getHand,
+84            "getHand1": getHand1,
+85            "getHand2": getHand2,
+86            "informTimeout": informTimeout,
+87            "seeOutcome": seeOutcome,
+88        }
+```
+Keep in mind this functions listed above are still part of the player function
+* Line 72 to line 73 contains the function built to help inform timeouts in game 
+* Line 75 to line 79 contains a function that is used in the program to see the outcome each round 
+* On line 81 to line 88 we return this subfunctions of the main player function.
 Now we are done creating the functions on the frontend, we are going to implement them on the backend.
 ```js
 42    Alice.only(() => {
@@ -200,179 +202,208 @@ Now we are done creating the functions on the frontend, we are going to implemen
 48    commit()
 49
 50
-60    Bob.only(() => {
-61        interact.acceptWager(wager)
-62    })
-63    Bob.pay(wager)
-64    commit()
-65    Alice.only(() => {
-66        const _handAlice = interact.getHand()
-67        const [_commitAlice, _saltAlice] = makeCommitment(interact, _handAlice)
-68        const commitAlice = declassify(_commitAlice)
-69    })
-70    Alice.publish(commitAlice)
-71    commit()
-72
-73    unknowable(Bob, Alice(_handAlice, _saltAlice))
-74
-75    Bob.only(() => {
-76        const handBob = declassify(interact.getHand())
-77    })
-78    Bob.publish(handBob)
-79    commit()
-80
-81    Alice.only(() => {
-82        const saltAlice = declassify(_saltAlice)
-83        const handAlice = declassify(_handAlice)
-84    })
-85
-86    Alice.publish(saltAlice, handAlice)
-87
-88    checkCommitment(commitAlice, saltAlice, handAlice)
-89    const outcome = winner(handAlice, handBob)
-90    each([Alice, Bob], () => {
+51    Bob.only(() => {
+52        interact.acceptWager(wager)
+53    })
+54    Bob.pay(wager)
+55    commit()
+```
+* On Line 42 to 48 we use one of Alice's function to declare the wager for the game, Alice publishes and pays this wager on line 46 and 47.
+* From Line 51 to 55 we equally use one of Bob's function to accept the wager proposed by Alice,publish this wager,pay and commit 
+```js
+56    Alice.only(() => {
+57        const _handAlice = interact.getHand()
+58        const [_commitAlice, _saltAlice] = makeCommitment(interact, _handAlice)
+59        const commitAlice = declassify(_commitAlice)
+60    })
+61    Alice.publish(commitAlice)
+62    commit()
+63
+64    unknowable(Bob, Alice(_handAlice, _saltAlice))
+65
+66    Bob.only(() => {
+67        const handBob = declassify(interact.getHand())
+68    })
+69    Bob.publish(handBob)
+70    commit()
+71
+72    Alice.only(() => {
+73        const saltAlice = declassify(_saltAlice)
+74        const handAlice = declassify(_handAlice)
+75    })
+76
+77    Alice.publish(saltAlice, handAlice)
+78    checkCommitment(commitAlice, saltAlice, handAlice)
+79    const outcome = winner(handAlice, handBob)
+80    each([Alice, Bob], () => {
 91        interact.seeOutcome(outcome)
-92    })
-93    commit()
+82    })
+83    commit()
 ```
 In this index.rsh file above we use some of the fuctions we defined in the index.py frontend code. We use the gethand function to get the hands of both players for the first round and also we use the seeOutcome function to see the outcome of the first round. 
-* In line 56 to line 84 we are using to gethand function to get the players hand, then we make a commitment to hide the first players hand till the second player reveals their hands 
+* From Line 56 to 60 we use the gethand function to get the hand alice plays for the first round, we then make a commitment to hide the hand until the second player publishes their hand.
+* On line 61 and 62 we publish this commitment and commit.
+* On Line 64 we use the unknowable function to ensure that Bob doesn't know Alice hand.
+* From line 66 to 68 we use the gethand function to get Bob's hand for the first round of the game, then we publish and commit on line 69 and 70.
+* From line 72 to 77 we reveal Alice hand and publish it for everyone to see.
+* On line 78 we use the checkCommitment function to ensure the commitment published above by alice wasn't tampered with
+* From Line 79 to 83 we get the outcome using the winner function we created earlier, then we use the seeoutcome function to display the outcome to both participants and commit.
 
-The code below does exactly the same as the one above but it uses the gethand1 and gethand2 function to get the players hands for the second round and the last round. Towards the end of the index.rsh we use a computation to determine the winner of the 3 rounds and transfer the funds in the contract to winner , or in the case of a draw the funds will be transfered back to the two players.
+The code below does exactly the same as the one above but it uses the gethand1 and gethand2 function to get the players hands for the second round and the last round. Towards the end of the index.rsh we use a computation to determine the winner of the 3 rounds and transfer the funds in the contract to winner, or in the case of a draw the funds will be transfered back to the two players.
 ```js
-95 Alice.only(() => {
-96        const _handAlice2 = interact.getHand1()
-97        const [_commitAlice2, _saltAlice2] = makeCommitment(interact, _handAlice2)
-98        const commitAlice2 = declassify(_commitAlice2)
-99    })
-100    Alice.publish(commitAlice2)
-101    commit()
-102
-103
-104    unknowable(Bob, Alice(_handAlice2, _saltAlice2))
-106    Bob.only(() => {
-107        const handBob2 = declassify(interact.getHand1())
-108    })
-109    Bob.publish(handBob2)
-110    commit()
-111
-112    Alice.only(() => {
-113        const saltAlice2 = declassify(_saltAlice2)
-114        const handAlice2 = declassify(_handAlice2)
-115    })
-116
-117    Alice.publish(saltAlice2, handAlice2)
-118    checkCommitment(commitAlice2, saltAlice2, handAlice2)
-119
-120
-121    const outcome2 = winner(handAlice2, handBob2)
-122    each([Alice, Bob], () => {
-123        interact.seeOutcome(outcome2) 
-124    })
-125    commit()
-126
-127     Alice.only(() => {
-128        const _handAlice3 = interact.getHand2()
-129        const [_commitAlice3, _saltAlice3] = makeCommitment(interact, _handAlice3)
-130        const commitAlice3 = declassify(_commitAlice3)
-131    })
-132    Alice.publish(commitAlice3)
-133    commit()
-134
-135
-136    unknowable(Bob, Alice(_handAlice3, _saltAlice3))
-137    Bob.only(() => {
-138        const handBob3 = declassify(interact.getHand2())
-139    })
-140    Bob.publish(handBob3)//publishing the hand 
-141    commit()
-142
-143    Alice.only(() => {
-144        const saltAlice3 = declassify(_saltAlice3)
-145        const handAlice3 = declassify(_handAlice3)
-146    })
-147
-148    Alice.publish(saltAlice3, handAlice3)
-149    checkCommitment(commitAlice3, saltAlice3, handAlice3)
-150
-151
-152    const outcome3 = winner(handAlice3, handBob3)
-153
-154    const [forAlice, forBob] =
-155        outcome2 == A_WINS && outcome == A_WINS || outcome == A_WINS && outcome3 == A_WINS || outcome2 == A_WINS && outcome3 == A_WINS ? [2, 0] :
-156            outcome2 == B_WINS && outcome == B_WINS || outcome == B_WINS && outcome3 == B_WINS || outcome2 == B_WINS && outcome3 == B_WINS ? [0, 2] :
-157                [1, 1] /* tie */
-158
-159    transfer(forAlice * wager).to(Alice)
-160    transfer(forBob * wager).to(Bob)
-161    commit();
-162
-163
-164    each([Alice, Bob], () => {
-165        interact.seeOutcome(outcome3)
-166    })
-167 })
+84 Alice.only(() => {
+85        const _handAlice2 = interact.getHand1()
+86        const [_commitAlice2, _saltAlice2] = makeCommitment(interact, _handAlice2)
+87        const commitAlice2 = declassify(_commitAlice2)
+88    })
+89    Alice.publish(commitAlice2)
+90    commit()
+100
+101    unknowable(Bob, Alice(_handAlice2, _saltAlice2))
+102    Bob.only(() => {
+103        const handBob2 = declassify(interact.getHand1())
+104    })
+105    Bob.publish(handBob2)
+106    commit()
+107
+108    Alice.only(() => {
+109        const saltAlice2 = declassify(_saltAlice2)
+110        const handAlice2 = declassify(_handAlice2)
+111    })
+112
+113    Alice.publish(saltAlice2, handAlice2)
+114    checkCommitment(commitAlice2, saltAlice2, handAlice2)
+115
+116    const outcome2 = winner(handAlice2, handBob2)
+117    each([Alice, Bob], () => {
+118        interact.seeOutcome(outcome2) 
+119    })
+120    commit()
 ```
+* From Line 84 to 88 we use the gethand1 function to get the hand alice plays for the second round, we then make a commitment to hide the hand until the second player publishes their hand.
+* On line 89 and 90 we publish this commitment and commit.
+* On Line 101 we use the unknowable function to ensure that Bob doesn't know Alice hand.
+* From line 102 to 104 we use the gethand1 function to get Bob's hand for the second round of the game, then we publish and commit on line 105 and 106.
+* From line 108 to 113 we reveal Alice hand and publish it for everyone to see.
+* On line 114 we use the checkCommitment function to ensure the commitment published above by alice wasn't tampered with
+* From Line 116 to 120 we get the outcome using the winner function we created earlier, then we use the seeoutcome function to display the outcome to both participants and commit.
+```js
+121
+122     Alice.only(() => {
+123        const _handAlice3 = interact.getHand2()
+124        const [_commitAlice3, _saltAlice3] = makeCommitment(interact, _handAlice3)
+125        const commitAlice3 = declassify(_commitAlice3)
+126    })
+127    Alice.publish(commitAlice3)
+128    commit()
+129
+130
+131    unknowable(Bob, Alice(_handAlice3, _saltAlice3))
+132    Bob.only(() => {
+133        const handBob3 = declassify(interact.getHand2())
+134    })
+135    Bob.publish(handBob3)
+136    commit()
+137
+138    Alice.only(() => {
+139        const saltAlice3 = declassify(_saltAlice3)
+140        const handAlice3 = declassify(_handAlice3)
+141    })
+142
+143    Alice.publish(saltAlice3, handAlice3)
+144    checkCommitment(commitAlice3, saltAlice3, handAlice3)
+145
+146    const outcome3 = winner(handAlice3, handBob3)
+```
+* From Line 122 to 126 we use the gethand2 function to get the hand alice plays for the third round, we then make a commitment to hide the hand until the second player publishes their hand.
+* On line 127 and 128 we publish this commitment and commit.
+* On Line 131 we use the unknowable function to ensure that Bob doesn't know Alice hand.
+* From line 132 to 134 we use the gethand1 function to get Bob's hand for the second round of the game, then we publish and commit on line 135 and 136.
+* From line 138 to 143 we reveal Alice hand and publish it for everyone to see.
+* On line 144 we use the checkCommitment function to ensure the commitment published above by alice wasn't tampered with.
+* On line 146 we use the winner function to determine winner of the final found.
+
+```js
+147    const [forAlice, forBob] =
+148        outcome2 == A_WINS && outcome == A_WINS || outcome == A_WINS && outcome3 == A_WINS || outcome2 == A_WINS &&outcome3 == A_WINS ? [2, 0] :
+149            outcome2 == B_WINS && outcome == B_WINS || outcome == B_WINS && outcome3 == B_WINS || outcome2 == B_WINS && outcome3 == B_WINS ? [0, 2] :
+150                [1, 1] /* tie */
+151
+152    transfer(forAlice * wager).to(Alice)
+153    transfer(forBob * wager).to(Bob)
+154    commit()
+155
+156
+157    each([Alice, Bob], () => {
+158        interact.seeOutcome(outcome3)
+159    })
+160 })
+```
+* From line 147 to 150 we create a logic that determines the winner from the different outcomes of the 3 rounds
+* On line 152 and 153 we handle the transfers depending on the outcome of the logic created above, we then commit on line 154.
+* The code on line 157 to 159 displays the winner of the final round.
 Now lets see how all this is implemented in the frontend code
 
 ```py
-93 def play_alice():
-94        num = input("Enter your wager player1: ")
-95        rpc_callbacks(
-96            "/backend/Alice",
-97            ctc_alice,
-98            dict(
-99                wager=rpc("/stdlib/parseCurrency", num), deadline=10, **player(player_1)
-100            ),
-101        )
-102
-103    alice = Thread(target=play_alice)
-104    alice.start()
+89   def play_alice():
+90          num = input("Enter your wager player1: ")
+91          rpc_callbacks(
+92              "/backend/Alice",
+93              ctc_alice,
+94              dict(
+95                  wager=rpc("/stdlib/parseCurrency", num), deadline=10, **player(player_1)
+96              ),
+98          )
+99
+100   alice = Thread(target=play_alice)
+101   alice.start()
+```
+* From line 89 to line 98 we create a function play_alice(), this function will be used to execute player1( which is alice) functions in the game, this is done on line 100 and 101 using the thread function
+```py
+102    def play_bob():
+103        wag =input("Do you accept wager player2: ")
+104        if wag == "yes" or wag == "y" or wag == "Y" or wag == "YES":
 105
-106    def play_bob():
-107        wag =input("Do you accept wager player2: ")
-108        if wag == "yes" or wag == "y" or wag == "Y" or wag == "YES":
-109
-110            def acceptWager(amt):
-111                print("%s accepts the wager of %s" % (player_2, fmt(amt)))
-112
-113            ctc_bob = rpc("/acc/contract", acc_bob, rpc("/ctc/getInfo", ctc_alice))
-114            rpc_callbacks(
-115                "/backend/Bob",
-116                ctc_bob,
-117                dict(acceptWager=acceptWager, **player(player_2)),
-118            )
-119            rpc("/forget/ctc", ctc_bob)
-120        elif wag == "n" or wag == "no" or wag == "NO" or wag == "N":
-121            print("wager not accepted")
-122            quit()
-123
-124    bob = Thread(target=play_bob)
-125    bob.start()
-126
-127    alice.join()
-128    bob.join()
-129
-130    after_alice = get_balance(acc_alice)
-131    after_bob = get_balance(acc_bob)
-132
-133    print("%s went from %s to %s" % (player_1,before_alice, after_alice))
-134    print("%s went from %s to %s" % (player_2,before_bob, after_bob))
-135
-136    rpc("/forget/acc", acc_alice, acc_bob)
-137    rpc("/forget/ctc", ctc_alice)
-138
-139
-140 if __name__ == "__main__":
-141    main()
+106            def acceptWager(amt):
+107                print("%s accepts the wager of %s" % (player_2, fmt(amt)))
+108
+109            ctc_bob = rpc("/acc/contract", acc_bob, rpc("/ctc/getInfo", ctc_alice))
+110            rpc_callbacks(
+111                "/backend/Bob",
+112                ctc_bob,
+113               dict(acceptWager=acceptWager, **player(player_2)),
+114            )
+115            rpc("/forget/ctc", ctc_bob)
+116        elif wag == "n" or wag == "no" or wag == "NO" or wag == "N":
+117            print("wager not accepted")
+118            quit()
+119
+120    bob = Thread(target=play_bob)
+121    bob.start()
+```
+* From line 102 to line 118 we also a create a function play_bob(), this is used to execute player2 functionalities in the game. we also use the thread function to execute the function on line 120 and line 121. 
+```py
+122    alice.join()
+123    bob.join()
+124
+125    after_alice = get_balance(acc_alice)
+126    after_bob = get_balance(acc_bob)
+127
+128    print("%s went from %s to %s" % (player_1,before_alice, after_alice))
+129    print("%s went from %s to %s" % (player_2,before_bob, after_bob))
+130
+131    rpc("/forget/acc", acc_alice, acc_bob)
+132    rpc("/forget/ctc", ctc_alice)
+133
+134
+135 if __name__ == "__main__":
+136    main()
 
 ```
-* From line 93 to line 101 we create a function play_alice(), this function will be used to execute player1( which is alice) functions in the game, this is done on line 103 and 104 using the thread function
-* From line 106 to line 122 we also a create a function play_bob(), this is used to execute player2 functionalities in the game. we also use the thread function to execute the function on line 124 and line 125. 
-* On line 127 and 128 we use the .join() to instructs the main thread to wait until both child threads have run to completion, signifying the end of the game.
- 
-Towards the ending of the code we just get the balance of the two accounts and print it out on the terminal, then we forget the contract just in case the users want to play again.
-
+* On line 122 and 123 we use the .join() to instructs the main thread to wait until both child threads have run to completion, signifying the end of the game.
+* From line 125 to 129  we create variables to store the balance of the two participants and print them out on line 128 and 129.
+* On line 131 and 132 we forget the contracts just incase the players want to play again.
+* On line 135 and 136 we run the main() function. 
 Below is the full game output on the terminal 
 ```
 Enter your name player1: Alice
