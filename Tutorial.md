@@ -24,10 +24,10 @@ For this Tutorial we are creating a console application using python, so get rea
 
 ```js
 1 'reach 0.1'
-2 
-3 const [isOutcome, B_WINS, DRAW, A_WINS] = makeEnum(3)
+2 const [isOutcome, B_WINS, DRAW, A_WINS] = makeEnum(3)
+3 
 4 const winner = (handA, handB) => ((handA + (4 - handB)) % 3)
-5 const [isHand, ROCK, PAPER, SCISSORS] = makeEnum(3)
+5 
 6 assert(winner(ROCK, PAPER) == B_WINS)
 7 assert(winner(PAPER, ROCK) == A_WINS)
 8 assert(winner(ROCK, ROCK) == DRAW)
